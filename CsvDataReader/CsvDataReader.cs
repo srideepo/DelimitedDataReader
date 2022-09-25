@@ -20,18 +20,31 @@ namespace SqlUtilities
         private string[] _headers;
         private string[] _currentRow;
         private string _staticValues = "";
+        private char _delimiter = ',';
 
         // This should match strings and strings that
         // have quotes around them and include embedded commas
-        private Regex _CsvRegex = new Regex(",(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))", RegexOptions.Compiled);
+        private string _CsvRegexPattern = "(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))";
+        private Regex _CsvRegex = new Regex("\\x7C(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))", RegexOptions.Compiled);   //hexvalue \x7C is for pipe |
+        private string _RegexSpecialCharacters = @"[{(?\-^|*+.$)}]";
 
-        public CsvDataReader(string fileName)
+        public CsvDataReader(string fileName) : this(fileName, ',')
         {
+        }
+
+        public CsvDataReader(string fileName, char delimiter)
+        {
+            _delimiter = delimiter;
+            int value = Convert.ToInt32(_delimiter);
+            //escape delimiters in hexdec form, automatically takes care of backslash escape (pipe fails non hex val escape)
+            //form "\\x7C(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))"
+            _CsvRegex = new Regex($@"\x{value:X}{_CsvRegexPattern}", RegexOptions.Compiled);
+
             if (!File.Exists(fileName))
                 throw new FileNotFoundException();
 
             _stream = new StreamReader(fileName);
-            _headers = _stream.ReadLine().Split(',');
+            _headers = _stream.ReadLine().Split(_delimiter);
         }
 
         public CsvDataReader(string fileName, Dictionary<string, string> staticColumns)
@@ -51,7 +64,7 @@ namespace SqlUtilities
                 rawHeader += string.Format(",{0}", keyValue.Key);
                 _staticValues += string.Format(",{0}", keyValue.Value.ToString());
             }
-            _headers = rawHeader.Split(',');
+            _headers = rawHeader.Split(_delimiter);
 
         }
 

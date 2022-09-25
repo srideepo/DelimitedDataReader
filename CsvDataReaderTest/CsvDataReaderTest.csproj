@@ -67,6 +67,7 @@
   <ItemGroup>
     <Content Include="MoveCsv.txt" />
     <Content Include="InvalidCsv.txt" />
+    <Content Include="SimpleCsvPipe.txt" />
     <Content Include="SimpleCsv.txt" />
   </ItemGroup>
   <Choose>

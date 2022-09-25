@@ -61,6 +61,17 @@ namespace CsvDataReaderTest
         }
 
         [TestMethod]
+        public void ReadAllPipedRows()
+        {
+            CsvDataReader reader = new CsvDataReader(@"..\..\SimpleCsv.txt", '|');
+            while (reader.Read())
+            {
+            }
+            reader.Close();
+            reader.Dispose();
+        }
+
+        [TestMethod]
         public void GetValue()
         {
             CsvDataReader reader = new CsvDataReader(@"..\..\SimpleCsv.txt");
